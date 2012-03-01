@@ -11,16 +11,20 @@ BEGIN {
 	for (i=1; i<ARGC; i++) {
 		if (ARGV[i] == "-h" || ARGV[i] == "--help") {
 			print PROGRAM ": USAGE: " USAGE;
+			ignoreEnd = 1; # Ignore END section.
 			exit 0;
 		} else if (ARGV[i] == "-v" || ARGV[i] == "--version") {
 			print PROGRAM ": VERSION: " VERSION;
+			ignoreEnd = 1; # Ignore END section.
 			exit 0;
 		# If ARGV[i]ument starts with a dash but is not a lone dash.
 		} else if (ARGV[i] ~ "^-.+") {
 			print PROGRAM ": ERROR: Unrecognized argument '" ARGV[i] "'.";
+			ignoreEnd = 1; # Ignore END section.
 			exit 1;
 		} else if (ARGC > 2) {
 			print PROGRAM ": ERROR: Extraneous inputs starting at '" ARGV[i] "'.";
+			ignoreEnd = 1; # Ignore END section.
 			exit 1;
 		}
 	}
@@ -39,17 +43,20 @@ BEGIN {
 		print PROGRAM ": ERROR: Extraneous (more than nine) non-comment rows in input " \
 			  (FILENAME == "-" ? "<stdin>" : "'" FILENAME "'") " starting at line " \
 			  NR ".";
+		ignoreEnd = 1; # Ignore END section.
 		exit 1;
 	}
 
 	for (i=1; i<=9; i++) {
 		if (NF != 9) {
 			print PROGRAM ": ERROR: Expected nine-column line but found " NF "-column line \"" $0 "\".";
+			ignoreEnd = 1; # Ignore END section.
 			exit 1;
 		} else if (!($i ~ "^[0-9]+$")) {
 			print PROGRAM ": ERROR: Non-decimal or non-digit \"" $i "\" in input " \
 			      (FILENAME == "-" ? "<stdin>" : "'" FILENAME "'") " at row " \
 				  NR ", column " i ".";
+			ignoreEnd = 1; # Ignore END section.
 			exit 1;
 		}
 		grid[NR,i] = $i;
@@ -57,5 +64,12 @@ BEGIN {
 }
 
 END {
+	if (NR-numComments < 9 && !ignoreEnd) {
+		print PROGRAM ": ERROR: Insufficient (less than nine) non-comment rows in input " \
+			  (FILENAME == "-" ? "<stdin>" : "'" FILENAME "'") " starting at line " \
+			  NR ".";
+		exit 1;
+	}
+
 	# TODO: Solve puzzle here.
 }
