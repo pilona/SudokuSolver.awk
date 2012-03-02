@@ -11,7 +11,7 @@ function printGrid(row, col) {
     }
 }
 
-function check(isSet) { # local isSet
+function check(isSet, i, j, n, row, col) { # local isSet, i, j, n, row, col
     for (i=1; i<=9; i++)
         isSet[i] = FALSE;
 
@@ -25,7 +25,7 @@ function check(isSet) { # local isSet
                 isSet[grid[row,col]] = TRUE;
         }
         # Reset validity assumptions.
-        for (i=1; i<10; i++)
+        for (i=1; i<=9; i++)
             isSet[i] = FALSE;
     }
 
@@ -40,15 +40,15 @@ function check(isSet) { # local isSet
                 isSet[grid[row,col]] = TRUE;
         }
         # Reset validity assumptions.
-        for (i=1; i<10; i++)
+        for (i=1; i<=9; i++)
             isSet[i] = FALSE;
     }
 
     # Check square-wise whether the grid is valid.
-    for (i=1; i<=3; i++) { # where i is the major row (one of three) number
-        for (j=1; j<=3; j++) { # where j is the major column number
-            for (row=3*i; row<=3*(i+1); row++) {
-                for (col=3*j; col<=3*(j+1); col++) {
+    for (i=0; i<3; i++) { # where i is the major row (one of three) number
+        for (j=0; j<3; j++) { # where j is the major column number
+            for (row=(3*i)+1; row<=3*(i+1); row++) { # Ex: row 1-3, 4-6, or 7-9
+                for (col=(3*j)+1; col<=3*(j+1); col++) { # Ex: col 1-3, 4-6, 7-9
                     if (grid[row,col] == UNSET_CELL_FLAG)
                         continue; # This is a valid value.
                     else if (isSet[grid[row,col]])
@@ -66,43 +66,48 @@ function check(isSet) { # local isSet
     return TRUE; # Haven't found anything that violates the rules, so return true.
 }
 
-function set(row, col, value) {
-    oldValue = grid[row,column];
-    grid[row,column] = value;
+function findUnset(row, col) { # local row, col
+    for (row=1; row<=9; row++) {
+        for (col=1; col<=9; col++) {
+            if (grid[row,col] == UNSET_CELL_FLAG)
+                return row SUBSEP col;
+        }
+    }
+
+    return UNSET_CELL_FLAG SUBSEP UNSET_CELL_FLAG;
+}
+
+function setNextUnset(value, unsetCoord, oldValue) {
+    unsetCoord = findUnset();
+    oldValue = grid[unsetCoord];
+    grid[unsetCoord] = value
 
     if (!check()) {
-        grid[row,column] = oldValue;
+        grid[unsetCoord] = oldValue;
         return FALSE;
     } else {
         return TRUE;
     }
 }
 
-function hasUnset() {
-    for (row=1; row<=9; row++) {
-        for (col=0; col<=9; col++) {
-            if (grid[row,col] == UNSET_CELL_FLAG)
-                return TRUE;
-        }
-    }
-
-    return FALSE;
-}
-
-function setNextUnset(grid, value) {
-    for (row=1; row<=9; row++) {
-        for (col=1; col<=9; col++) {
-            if (grid[row,col] == UNSET_CELL_FLAG) {
-                set(row,col,value);
-                return;
+function solve(unsetCoord, possibleValue) {
+    unsetCoord = findUnset();
+    if (unsetCoord != UNSET_CELL_FLAG SUBSEP UNSET_CELL_FLAG) {
+        for (possibleValue=1; possibleValue<=9; possibleValue++) {
+            if (setNextUnset(possibleValue)) {
+                solve();
+                # Backtrack
+                grid[unsetCoord] = UNSET_CELL_FLAG;
             }
         }
+    } else {
+        printGrid();
     }
 }
 
 BEGIN {
     USAGE = "[-h|--help] [-v|--version] [<infile>|-]";
-    VERSION = 0.1;
+    VERSION = 0.2;
     #PROGRAM = ARGV[0];
     PROGRAM = "SudokuSolver.awk";
 
@@ -120,7 +125,7 @@ BEGIN {
 
     UNSET_CELL_FLAG         = 0;
 
-	STDERR                  = "/dev/stderr";
+    STDERR                  = "/dev/stderr";
 
     for (i=1; i<ARGC; i++) {
         if (ARGV[i] == "-h" || ARGV[i] == "--help") {
@@ -133,7 +138,7 @@ BEGIN {
             exit 0;
         # If ARGV[i]ument starts with a dash but is not a lone dash.
         } else if (ARGV[i] ~ "^-.+") {
-            print PROGRAM ": ERROR: Unrecognized argument '" ARGV[i] "'."; > STDERR;
+            print PROGRAM ": ERROR: Unrecognized argument '" ARGV[i] "'." > STDERR;
             ignoreEnd = 1; # Ignore END section.
             exit EXIT_ILLEGAL_ARG;
         } else if (ARGC > 2) {
@@ -184,5 +189,5 @@ END {
         exit EXIT_INSUFFICIENT_LINES;
     }
 
-    # TODO: Solve puzzle here.
+    solve();
 }
