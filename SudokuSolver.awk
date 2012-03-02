@@ -159,8 +159,8 @@ BEGIN {
 
 END {
 	if (NR-numComments < 9 && !ignoreEnd) {
-		print PROGRAM ": ERROR: Insufficient (less than nine) non-comment rows in input " \
-			  (FILENAME == "-" ? "<stdin>" : "'" FILENAME "'") " starting at line " \
+        print PROGRAM ": ERROR: Insufficient (" NR-numComments " instead of 9) non-comment rows in input " \
+              (FILENAME == "-" ? "<stdin>" : "'" FILENAME "'") ".";
 			  NR ".";
 		exit 1;
 	}
