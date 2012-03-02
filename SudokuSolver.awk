@@ -2,6 +2,15 @@
 
 # TODO: Handle multiple grids in one file.
 
+function printGrid(row, col) {
+    for (row=1; row<=9; row++) {
+        for (col=1; col<=9; col++)
+            # FIXME: Ugly hack to not print a newline.
+            printf grid[row,col] " ";
+        print "";
+    }
+}
+
 function check(isSet) { # local isSet
     for (i=1; i<=9; i++)
         isSet[i] = FALSE;
