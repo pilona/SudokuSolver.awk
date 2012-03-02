@@ -79,11 +79,10 @@ function findUnset(row, col) { # local row, col
 
 function setNextUnset(value, unsetCoord, oldValue) {
     unsetCoord = findUnset();
-    oldValue = grid[unsetCoord];
     grid[unsetCoord] = value
 
     if (!check()) {
-        grid[unsetCoord] = oldValue;
+        grid[unsetCoord] = UNSET_CELL_FLAG;
         return FALSE;
     } else {
         return TRUE;
