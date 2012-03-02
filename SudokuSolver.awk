@@ -173,7 +173,7 @@ BEGIN {
             ignoreEnd = 1; # Ignore END section.
             exit EXIT_NONDIGIT_COLUMN;
         }
-        grid[NR,i] = $i;
+        grid[NR-numComments,i] = $i;
     }
 }
 
