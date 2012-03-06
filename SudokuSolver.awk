@@ -130,20 +130,20 @@ BEGIN {
         if (ARGV[i] == "-h" || ARGV[i] == "--help") {
             print PROGRAM ": USAGE: " USAGE;
             ignoreEnd = 1; # Ignore END section.
-            exit 0;
+            exit (EXIT_STATUS = EXIT_SUCCESS);
         } else if (ARGV[i] == "-v" || ARGV[i] == "--version") {
             print PROGRAM ": VERSION: " VERSION;
             ignoreEnd = 1; # Ignore END section.
-            exit 0;
+            exit (EXIT_STATUS = EXIT_SUCCES)S
         # If ARGV[i]ument starts with a dash but is not a lone dash.
         } else if (ARGV[i] ~ "^-.+") {
             print PROGRAM ": ERROR: Unrecognized argument '" ARGV[i] "'." > STDERR;
             ignoreEnd = 1; # Ignore END section.
-            exit EXIT_ILLEGAL_ARG;
+            exit (EXIT_STATUS = EXIT_ILLEGAL_ARG);
         } else if (ARGC > 2) {
             print PROGRAM ": ERROR: Extraneous inputs starting at '" ARGV[i] "'." > STDERR;
             ignoreEnd = 1; # Ignore END section.
-            exit EXIT_EXTRANEOUS_FILES;
+            exit (EXIT_STATUS = EXIT_EXTRANEOUS_FILES);
         }
     }
 
@@ -162,20 +162,20 @@ BEGIN {
               (FILENAME == "-" ? "<stdin>" : "'" FILENAME "'") " starting at line " \
               NR "." > STDERR;
         ignoreEnd = 1; # Ignore END section.
-        exit EXIT_EXTRANEOUS_LINES;
+        exit (EXIT_STATUS = EXIT_EXTRANEOUS_LINES);
     }
 
     for (i=1; i<=9; i++) {
         if (NF != 9) {
             print PROGRAM ": ERROR: Expected nine-column line but found " NF "-column line \"" $0 "\"." > STDERR;
             ignoreEnd = 1; # Ignore END section.
-            exit EXIT_BAD_NF;
+            exit (EXIT_STATUS = EXIT_BAD_NF);
         } else if (!($i ~ "^[" UNSET_CELL_FLAG "1-9]+$")) {
             print PROGRAM ": ERROR: Non-decimal or non-digit \"" $i "\" in input " \
                   (FILENAME == "-" ? "<stdin>" : "'" FILENAME "'") " at row " \
                   NR ", column " i "." > STDERR;
             ignoreEnd = 1; # Ignore END section.
-            exit EXIT_NONDIGIT_COLUMN;
+            exit (EXIT_STATUS = EXIT_NONDIGIT_COLUMN);
         }
         grid[NR-numComments,i] = $i;
     }
@@ -186,6 +186,8 @@ END {
         print PROGRAM ": ERROR: Insufficient (" NR-numComments " instead of 9) non-comment rows in input " \
               (FILENAME == "-" ? "<stdin>" : "'" FILENAME "'") "." > STDERR;
         exit EXIT_INSUFFICIENT_LINES;
+    } else if (ignoreEnd) {
+        exit EXIT_STATUS;
     }
 
     solve();
