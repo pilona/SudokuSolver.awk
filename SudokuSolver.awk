@@ -106,6 +106,19 @@ function solve(unsetCoord, possibleValue) {
 
 BEGIN {
     USAGE = "[-h|--help] [-v|--version] [<infile>|-]";
+    LICENSE = "Copyright (c) 2011, Alex Pilon <pilona@magma.ca>\n" \
+              "\n" \
+              "Permission to use, copy, modify, and/or distribute this software for any\n" \
+              "purpose with or without fee is hereby granted, provided that the above\n" \
+              "copyright notice and this permission notice appear in all copies.\n" \
+              "\n" \
+              "THE SOFTWARE IS PROVIDED \"AS IS\" AND THE AUTHOR DISCLAIMS ALL WARRANTIES\n" \
+              "WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF\n" \
+              "MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR\n" \
+              "ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES\n" \
+              "WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN\n" \
+              "ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF\n" \
+              "OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE."
     VERSION = 0.2;
     #PROGRAM = ARGV[0];
     PROGRAM = "SudokuSolver.awk";
@@ -129,17 +142,23 @@ BEGIN {
     for (i=1; i<ARGC; i++) {
         if (ARGV[i] == "-h" || ARGV[i] == "--help") {
             print PROGRAM ": USAGE: " USAGE;
-            ignoreEnd = 1; # Ignore END section.
+            ignoreEnd = TRUE; # Ignore END section.
             exit (EXIT_STATUS = EXIT_SUCCESS);
         } else if (ARGV[i] == "-v" || ARGV[i] == "--version") {
             print PROGRAM ": VERSION: " VERSION;
-            ignoreEnd = 1; # Ignore END section.
+            ignoreEnd = TRUE; # Ignore END section.
             exit (EXIT_STATUS = EXIT_SUCCES)S
+        } else if (ARGV[i] == "-l" || ARGV[i] == "--license") {
+            print PROGRAM " v" VERSION ": LICENSE: \n" LICENSE;
+            ignoreEnd = TRUE;
+            exit (EXIT_STATUS = EXIT_SUCCESS);
+
         # If ARGV[i]ument starts with a dash but is not a lone dash.
         } else if (ARGV[i] ~ "^-.+") {
             print PROGRAM ": ERROR: Unrecognized argument '" ARGV[i] "'." > STDERR;
             ignoreEnd = 1; # Ignore END section.
             exit (EXIT_STATUS = EXIT_ILLEGAL_ARG);
+
         } else if (ARGC > 2) {
             print PROGRAM ": ERROR: Extraneous inputs starting at '" ARGV[i] "'." > STDERR;
             ignoreEnd = 1; # Ignore END section.
